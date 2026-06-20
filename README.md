@@ -1,2 +1,7 @@
-# app-preview-craft
-axentx product · A user-friendly, template-based video creation tool specifically designed for indie iOS developers to produce high-quality App Store preview videos without requiring extensive video editing knowledge.
+# App Preview Craft
+
+A simple application for generating video previews for apps.
+
+## Usage
+
+To use the application, run the following command:

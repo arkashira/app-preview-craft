@@ -1,33 +1,39 @@
 import json
 from dataclasses import dataclass
-from enum import Enum
-from typing import List
-
-class TemplateType(str, Enum):
-    DEFAULT = "default"
-    CUSTOM = "custom"
+from argparse import ArgumentParser
 
 @dataclass
 class AppInfo:
     name: str
-    screenshots: List[str]
+    screenshots: list
 
-class AppPreviewCraft:
-    def __init__(self):
-        self.templates = {
-            TemplateType.DEFAULT: "default_template",
-            TemplateType.CUSTOM: "custom_template"
-        }
+@dataclass
+class Template:
+    name: str
+    description: str
 
-    def generate_video(self, app_info: AppInfo, template_type: TemplateType) -> str:
-        if template_type not in self.templates:
-            raise ValueError("Invalid template type")
-        video_data = {
-            "app_name": app_info.name,
-            "screenshots": app_info.screenshots,
-            "template": self.templates[template_type]
-        }
-        return json.dumps(video_data)
+def create_video_preview(app_info: AppInfo, template: Template) -> str:
+    video_preview = {
+        "app_name": app_info.name,
+        "screenshots": app_info.screenshots,
+        "template_name": template.name,
+        "template_description": template.description
+    }
+    return json.dumps(video_preview)
 
-    def download_video(self, video_data: str) -> str:
-        return f"Downloaded video: {video_data}"
+def main():
+    parser = ArgumentParser()
+    parser.add_argument("--app_name", help="Name of the app")
+    parser.add_argument("--screenshots", help="Screenshots of the app", nargs="+")
+    parser.add_argument("--template_name", help="Name of the template")
+    parser.add_argument("--template_description", help="Description of the template")
+    args = parser.parse_args()
+
+    app_info = AppInfo(args.app_name, args.screenshots)
+    template = Template(args.template_name, args.template_description)
+
+    video_preview = create_video_preview(app_info, template)
+    print(video_preview)
+
+if __name__ == "__main__":
+    main()

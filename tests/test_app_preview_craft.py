@@ -1,35 +1,38 @@
+from app_preview_craft import create_video_preview, AppInfo, Template
 import json
-from app_preview_craft import AppPreviewCraft, AppInfo, TemplateType
-import pytest
 
-def test_generate_video_default_template():
-    app_preview_craft = AppPreviewCraft()
+def test_create_video_preview():
     app_info = AppInfo("Test App", ["screenshot1", "screenshot2"])
-    video_data = app_preview_craft.generate_video(app_info, TemplateType.DEFAULT)
-    assert json.loads(video_data) == {
+    template = Template("Test Template", "This is a test template")
+    video_preview = create_video_preview(app_info, template)
+    expected_video_preview = {
         "app_name": "Test App",
         "screenshots": ["screenshot1", "screenshot2"],
-        "template": "default_template"
+        "template_name": "Test Template",
+        "template_description": "This is a test template"
     }
+    assert json.loads(video_preview) == expected_video_preview
 
-def test_generate_video_custom_template():
-    app_preview_craft = AppPreviewCraft()
+def test_create_video_preview_empty_screenshots():
+    app_info = AppInfo("Test App", [])
+    template = Template("Test Template", "This is a test template")
+    video_preview = create_video_preview(app_info, template)
+    expected_video_preview = {
+        "app_name": "Test App",
+        "screenshots": [],
+        "template_name": "Test Template",
+        "template_description": "This is a test template"
+    }
+    assert json.loads(video_preview) == expected_video_preview
+
+def test_create_video_preview_none_template():
     app_info = AppInfo("Test App", ["screenshot1", "screenshot2"])
-    video_data = app_preview_craft.generate_video(app_info, TemplateType.CUSTOM)
-    assert json.loads(video_data) == {
+    template = Template(None, "This is a test template")
+    video_preview = create_video_preview(app_info, template)
+    expected_video_preview = {
         "app_name": "Test App",
         "screenshots": ["screenshot1", "screenshot2"],
-        "template": "custom_template"
+        "template_name": None,
+        "template_description": "This is a test template"
     }
-
-def test_generate_video_invalid_template_type():
-    app_preview_craft = AppPreviewCraft()
-    app_info = AppInfo("Test App", ["screenshot1", "screenshot2"])
-    with pytest.raises(ValueError):
-        app_preview_craft.generate_video(app_info, "invalid_template")
-
-def test_download_video():
-    app_preview_craft = AppPreviewCraft()
-    video_data = json.dumps({"app_name": "Test App", "screenshots": ["screenshot1", "screenshot2"]})
-    downloaded_video = app_preview_craft.download_video(video_data)
-    assert downloaded_video == f"Downloaded video: {video_data}"
+    assert json.loads(video_preview) == expected_video_preview
