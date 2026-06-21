@@ -1,7 +1,7 @@
-# App Preview Craft
+# Apple Compliance Engine
 
-A simple application for generating video previews for apps.
+This project generates Apple-compliant videos with a mandatory 3-second black screen at the start.
 
 ## Usage
 
-To use the application, run the following command:
+To generate a compliant video, run the following command:
