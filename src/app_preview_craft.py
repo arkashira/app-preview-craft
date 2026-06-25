@@ -1,33 +1,63 @@
+import os
 import json
 from dataclasses import dataclass
-from typing import Dict
+from argparse import ArgumentParser
 
 @dataclass
-class VideoAnalytics:
-    conversion_rate_before: float
-    conversion_rate_after: float
-    video_views: int
-    engagement_metrics: Dict[str, int]
+class Media:
+    path: str
+    resolution: str
 
-def get_app_store_conversion_rate_comparison(video_analytics: VideoAnalytics) -> float:
-    return round(video_analytics.conversion_rate_after - video_analytics.conversion_rate_before, 1)
+def get_xcode_project_folder():
+    parser = ArgumentParser()
+    parser.add_argument('--folder', help='Xcode project folder')
+    args = parser.parse_args()
+    return args.folder
 
-def get_video_views_and_engagement_metrics(video_analytics: VideoAnalytics) -> Dict[str, int]:
-    return {
-        "video_views": video_analytics.video_views,
-        "engagement_metrics": video_analytics.engagement_metrics
-    }
+def parse_assets_folder(folder):
+    assets_folder = os.path.join(folder, 'Assets.xcassets')
+    if not os.path.exists(assets_folder):
+        raise ValueError('Invalid Xcode project folder')
+    screenshots = []
+    for root, dirs, files in os.walk(assets_folder):
+        for file in files:
+            if file.endswith('.png') or file.endswith('.jpeg'):
+                screenshots.append(Media(os.path.join(root, file), 'Unknown'))
+    return screenshots
 
-def integrate_apple_developer_account(video_analytics: VideoAnalytics) -> VideoAnalytics:
-    # Simulate Apple Developer account integration
-    video_analytics.conversion_rate_after = round(video_analytics.conversion_rate_after + 0.1, 1)
-    return video_analytics
+def detect_screen_recordings(folder):
+    resources_folder = os.path.join(folder, 'Resources')
+    if not os.path.exists(resources_folder):
+        raise ValueError('Invalid Xcode project folder')
+    screen_recordings = []
+    for root, dirs, files in os.walk(resources_folder):
+        for file in files:
+            if file.endswith('.mov') or file.endswith('.mp4'):
+                screen_recordings.append(Media(os.path.join(root, file), 'Unknown'))
+    return screen_recordings
 
-def calculate_video_analytics() -> VideoAnalytics:
-    # Simulate video analytics calculation
-    return VideoAnalytics(
-        conversion_rate_before=0.5,
-        conversion_rate_after=0.7,
-        video_views=100,
-        engagement_metrics={"likes": 10, "comments": 5}
-    )
+def get_media_resolution(media):
+    # For simplicity, assume resolution is the same as the file name
+    return os.path.basename(media.path)
+
+def import_media(folder):
+    screenshots = parse_assets_folder(folder)
+    screen_recordings = detect_screen_recordings(folder)
+    media = screenshots + screen_recordings
+    for m in media:
+        m.resolution = get_media_resolution(m)
+    return media
+
+def main():
+    folder = get_xcode_project_folder()
+    if not folder:
+        print('Please provide a valid Xcode project folder')
+        return
+    try:
+        media = import_media(folder)
+        print(json.dumps([m.__dict__ for m in media], indent=4))
+    except ValueError as e:
+        print(f'Error: {e}')
+
+if __name__ == '__main__':
+    main()
