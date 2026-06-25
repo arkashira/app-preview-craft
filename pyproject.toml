@@ -3,7 +3,7 @@ requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
 
 [tool.poetry]
-name = "app-preview-craft"
+name = "app-video-pro"
 version = "1.0.0"
 description = ""
 
